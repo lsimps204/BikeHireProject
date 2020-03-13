@@ -1,0 +1,200 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    {{ location.station_name }}
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    
+    <div class="d-flex align-items mt-2">
+        <img src="{% static 'images/bike-location-icon.png' %}" class="big-icon" style="color: rgb(78, 148, 86);" />
+        <h3 class="mb-4 mt-3 font-weight-bold d-inline" style="color: rgb(78, 148, 86);">
+            {{ location.station_name }}
+        </h3>
+    </div>
+    
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <table class="table">
+            <thead>
+                <tr>
+                    <th>Bike ID</th>
+                    <th class="text-center">Bike Status</th>
+                    <th class="text-center">Last Hired</th>
+                    <th>Actions</th>
+            </thead>
+            <tbody>
+                {% for bike in bikes %}
+                    <tr>
+                        <td>
+                            <i class="zmdi zmdi-bike mr-2"></i>{{ bike.id }}</td>
+                        <td class="text-center">{{ bike.get_status_display }}</td>
+                        <td class="text-center">
+                            <small>
+                                {% if bike.last_hired %}
+                                    {{ bike.last_hired|date:"d-m-Y, h:i" }}
+                                {% else %}
+                                    No previous hires
+                                {% endif %}
+                            </small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-success table-btn font-weight-bold mr-2 hire-btn"
+                                data-bikeid="{{bike.pk}}"
+                                data-toggle="modal"
+                                data-target="#hire-bike-modal"
+                            {% if user.userprofile.current_hire %}
+                                disabled
+                                data-toggle="tooltip" title="You already have a bike on hire!"
+                            {% endif %}
+                            {% if bike.get_status_display == 'Being repaired' %}
+                                disabled
+                                data-toggle="tooltip" title="Cannot hire: bike currently being repaired"
+                            {% endif%}
+                            {% if not user.is_authenticated %}
+                                disabled
+                                data-toggle="tooltip" title="You must be logged in to hire a bike"
+                                style="cursor: not-allowed;"
+                                {% endif %}>
+                                Hire
+                            </button>
+
+                        <!-- Report bike for repair button -->
+                        <button type ="button" class="btn btn-outline-secondary bike-repair-btn"
+                             data-toggle="modal" 
+                             data-target="#bike-report-modal" 
+                             data-bikeid="{{bike.pk}}"
+                             {% if bike.get_status_display == 'Being repaired' %}
+                                disabled
+                                data-toggle="tooltip" title="This bike has already been reported for repair"
+                            {% endif %}>
+                            
+                            
+                            <img src="{% static 'images/repair-icon.jpg' %}" class="wee-icon"
+                                {% if not user.is_authenticated %}
+                                disabled
+                                data-toggle="tooltip" title="You must be logged in to report a bike for repair"
+                                style="cursor: not-allowed;"
+                                {% endif %}/>
+                                Report
+                        </button>
+                            
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        
+        <!-- Pagination -->
+        <div class="pagination mt-4">
+            <ul class="pagination">
+                {% if bikes.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ bikes.previous_page_number }}">
+                            {{ bikes.previous_page_number }}
+                        </a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <a class="page-link" href="?page={{ bikes.number }}">
+                        {{ bikes.number }}
+                    </a>
+                </li>
+
+                {% if bikes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ bikes.next_page_number }}">
+                            {{ bikes.next_page_number }}
+                        </a>
+                    </li>
+                {% endif %}
+
+                <span class="current ml-3">
+                    Page {{ bikes.number }} of {{ bikes.paginator.num_pages }}.
+                </span>
+            </ul>
+        </div>
+
+        </div>
+        <div class="col-12 col-md-6">
+            <div id="map" class="my-2 col-12"></div>
+        </div>
+    </div>
+</div>
+
+{% include 'includes/hire_bike_modal.html' %}
+{% include 'bikes/repairbike.html' %}
+
+
+
+{% include 'includes/notification.html' %}
+
+
+{% endblock %}
+
+{% block js %}
+<script>
+
+
+$(".hire-btn").on("click", function(e) {
+    var bike_id = $.trim($(this).data('bikeid'))
+    $(".modal-bikeid").text(bike_id)
+    $("#id_bike_id").attr("value", parseInt(bike_id,10))
+});
+
+$("#confirm-hire-btn").on("click", function(e) {
+    $("#hire-bike-form").submit()
+});
+
+$("#confirm-repair-btn").on("click", function(e) {
+    $("#repair-bike-form").submit()
+});
+
+
+$(".bike-repair-btn").on("click", function() {
+    var bike_id = $.trim($(this).data('bikeid'))
+    $(".modal-bikeid").text(bike_id)
+    $("#id_bike").attr("value", parseInt(bike_id, 10))
+})
+
+
+function initMap() {
+    // generates the Google Map for the page
+    var lat = "{{ location.latitude|safe }}"
+    var lon = "{{ location.longitude|safe }}"
+    var station = "{{ location.station_name|safe }}"
+    var numbikes = "{{ num_bikes|safe }}"
+
+    var location = {lat: parseFloat(lat), lng: parseFloat(lon)};
+    
+    var map = new google.maps.Map(
+        document.getElementById('map'), {zoom: 13, center: location}
+    );
+
+    var marker = new google.maps.Marker({position: location, map: map});
+
+    var infoWindow = new google.maps.InfoWindow;
+    var infowincontent = document.createElement('div');
+    var strong = document.createElement('strong');
+    strong.textContent = station
+    infowincontent.appendChild(strong);
+    infowincontent.appendChild(document.createElement('br'));
+    var text = document.createElement('text');
+    text.textContent = numbikes + " bikes available"
+    infowincontent.appendChild(text);
+    google.maps.event.addListener(marker, 'click', (function(marker, infowincontent, infoWindow) {
+        return function() {
+            infoWindow.setContent(infowincontent);
+            infoWindow.open(map, marker);
+        }
+    })(marker, infowincontent, infoWindow));
+    }
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDr91yE-43L7KqAMSiS0IrIxZLcIkwGNVk&callback=initMap">
+</script>
+{% endblock %}

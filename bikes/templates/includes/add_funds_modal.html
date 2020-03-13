@@ -1,0 +1,32 @@
+<div id="add-funds-modal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Funds</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Select quantity of funds below:</p>
+        <form action="{% url 'bikes:addfunds' %}" id="add-funds-form" method="POST">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">£</span>
+                </div>
+                <input type="number" class="form-control" name="balance" id="add-balance-input">
+            </div>
+            <small>Updated balance: <strong>
+                £<span id="balance-text">{{ user.userprofile.balance|floatformat:2 }}</span>
+                </strong>    
+            </small>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="add-funds-btn">Add Funds</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

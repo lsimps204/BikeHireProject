@@ -1,0 +1,41 @@
+{% extends 'bikes/base.html' %}
+{% load bikes_filters %}
+
+{% block title_block %}
+    Login
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+
+    <div class="col-10 offset-1 col-md-6 offset-md-3 p-2">
+        {% if user.is_authenticated %}
+            <h2 class="my-4 text-primary">{{user.username}}, you're already logged in!</h2>
+            <a href="{% url 'bikes:index' %}">Click here</a> to return to the homepage.
+        {% else %}
+        <div class="card mt-4 p-2">
+        <div class="card-header">
+            <h3 class="mb-0">Sign In</h3>
+        </div>
+
+            <form class="" action="{% url 'bikes:login' %}" method="POST">
+                {% csrf_token %}
+                <div class="card-body p-2">
+                    <div class="form-group">
+                        {{ form.username.label_tag}}
+                        {{ form.username|add_class:"form-control" }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.password.label_tag }}
+                        {{ form.password|add_class:"form-control" }}
+                    </div>
+                <br/>
+                <button class="btn btn-primary">Login</button>
+                </div>
+            </form>
+        </div>
+
+        {% endif %}
+        </div>
+    </div>
+{% endblock %}

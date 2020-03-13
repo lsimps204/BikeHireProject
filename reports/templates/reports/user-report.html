@@ -1,0 +1,54 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    User History Report
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between my-3 align-items-center">
+        <div>
+            <h2 class="text-success">User Report</h2>
+            <p class="lead">Reports on various user statistics from the RainyBikes application</p>
+        </div>
+        <img src="{% static 'images/report_icon.png' %}" class="big-icon mr-4" />
+    </div>
+    <hr/>
+    <div class="row">
+
+        <div class="col-4 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">User Statistics</h5>
+                    <p class="card-text">
+                        <ul class="list-group">
+                            <li class="list-group-item">Total number of users: 
+                                <strong class="ml-3">{{ usercount }}</strong>
+                            </li>
+                            <li class="list-group-item">Total distance cycled: 
+                                <strong class="ml-3">{{ total_distance_cycled|floatformat:2 }} km</strong>
+                            </li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-6 col-sm-4">
+            <p>The following bar chart shows the number of users belonging to each different membership type:</p>
+            {{ div|safe }}
+        </div>
+        <div class="col-6 col-sm-4">
+            <p>The following bar chart shows the number of users of each type in the application: <em>customers</em>, <em>operators</em> and <em>managers</em></p>
+            {{ div2|safe }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+    {{ script|safe }}
+    {{ script2|safe }}
+{% endblock %}

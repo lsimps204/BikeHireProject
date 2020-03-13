@@ -1,0 +1,58 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    Bike Location Report
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="d-flex justify-content-between my-3 align-items-center">
+        <div>
+            <h2 class="text-success">Bike Location Report</h2>
+            <p class="lead">Reports on various bike/location statistics from the RainyBikes application</p>
+        </div>
+        <img src="{% static 'images/report_icon.png' %}" class="big-icon mr-4" />
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="mt-4 col-md-6 col-12">
+            <h4 class="text-primary">Bikes By Location (current moment)</h4>
+            <hr/>
+            <p>The following graph shows the current distribution of bikes throughout the city's stations.</p>
+            {{ div|safe }}
+        </div>
+
+        <div class="mt-4 col-md-6 col-12">
+            <h4 class="text-primary">Historical station counts</h4>
+            <hr/>
+            <p>The following graph shows the historical flux in the number of bikes at {{location_name}}.</p>
+            <div class="justify-content-between d-flex">
+                <p class="font-weight-bold">{{ location_name }}</p>
+                <div class="dropdown">
+                    <i class="zmdi zmdi-filter-list" data-toggle="dropdown"></i>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        {% for location in locations %}
+                            <a class="dropdown-item location-time-dropdown" 
+                                href="{% url 'reports:bike_locations' %}?loc={{location.station_name}}">
+                                {{ location.station_name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {{ time_series_div|safe }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block js %}
+    {{ script|safe }}
+    {{ time_series_script|safe }}
+<script>
+
+</script>
+{% endblock %}

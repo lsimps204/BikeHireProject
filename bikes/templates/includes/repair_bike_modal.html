@@ -1,0 +1,23 @@
+{% load bikes_filters %}
+<div id="repair-bike-modal" class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Repair a bike</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        <p>Select a bike to repair from the below list of faulty bikes:</p>
+          <form action="{% url 'bikes:repair-bike' %}" method="POST" id="repair-bike-forms">
+              {{ repairform.bike|add_class:"form-control" }}
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="repair-bike-btn">Repair bike</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,244 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+{% load bikes_filters %}
+
+
+
+{% block title_block %}
+    Operator page
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+
+        <div class="mt-4">
+            <img src="{% static 'images/operator_icon.png' %}" class="icon mr-2" />
+            <h3 class="text-success d-inline">RainyBikes operator controls</h3>
+        </div>
+        <hr/>
+        
+        
+        <div class="card-deck">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a data-toggle="modal" href="#move-bike-modal">
+                            <i class="zmdi zmdi-swap-vertical-circle text-success"></i>
+                            Move bikes
+                        </a>
+                    </h5>
+                    <p class="card-text text-success">
+                        Move bike from one station to another.
+                    </p>
+                </div>
+            </div>
+        
+
+        
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a data-toggle="modal" href="#repair-bike-modal">
+                            <i class="zmdi zmdi-wrench text-success"></i>
+                            Repair a bike
+                        </a>
+                    </h5>
+                    <p class="card-text text-success">
+                        Repair a bike that has been reported as defective.
+                    </p>
+                </div>
+            </div>
+        
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a data-toggle="modal" href="#track-bike-modal">
+                            <i class="zmdi zmdi-gps-dot text-success"></i>
+                            Track bikes
+                        </a>
+                    </h5>
+                    <p class="card-text text-success">
+                        Find out where a certain bike is situated.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a data-toggle="modal" href="#create-discount-modal">
+                                <i class="zmdi zmdi-local-offer text-success"></i>
+                                Create Discount
+                            </a>
+                        </h5>
+                        <p class="card-text text-success">
+                            Create a discount for users
+                        </p>
+                    </div>
+                </div>
+            
+        </div>
+        
+
+    </div>
+
+
+    {% include 'includes/move_bike_modal.html' %}
+
+    {% include 'includes/repair_bike_modal.html' %}
+
+    {% include 'includes/track_bike_modal.html' %}
+
+    {% include 'includes/create-discount-modal.html' %}
+
+    {% include 'includes/notification.html' %}
+
+{% endblock %}
+
+{% block js %}
+
+
+<script src="{% static 'js/moment.js' %}"></script>
+<script script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js"></script>
+
+    <script>
+        function showLocation() {
+                var url = "{{ trackurl|safe }}"
+                var bike = document.getElementById("track-bike-input");
+                var bikeID = parseInt(bike.value);
+                var locinfo = document.getElementById("location-info");
+                var locinfohire = document.getElementById("location-info-hire")
+                var locinfobroken = document.getElementById("location-info-broken")
+                var nobike = document.getElementById("no-bike-track")
+                
+                
+                $.post(url, {"bike_id": bikeID}, function(data) {
+                    var location = data.bike_location
+                    var status = data.bike_status
+                    if (status == 1) {
+                        locinfo.innerHTML = ("Bike number " + bikeID + " is located at " + location);
+                        locinfohire.innerHTML = ("")
+                        locinfobroken.innerHTML = ("")
+                        nobike.innerHTML = ("")
+                    }
+                    else if (status == 2) {
+                        locinfo.innerHTML = ("");
+                        locinfohire.innerHTML = ("Bike number " + bikeID + " is on hire. It was hired from " + location)
+                        locinfobroken.innerHTML = ("")
+                        nobike.innerHTML = ("")
+                    }
+                    else if (status == 3) {
+                        locinfo.innerHTML = ("");
+                        locinfohire.innerHTML = ("")
+                        locinfobroken.innerHTML = ("Bike number " + bikeID + " is located at " + location + " but it needs to be repaired.")
+                        nobike.innerHTML = ("")
+                    }
+                    else {
+                        nobike.innerHTML = ("This bike does not exist.")
+                        locinfohire.innerHTML = ("")
+                        locinfobroken.innerHTML = ("")
+                        locinfo.innerHTML = ("");
+                    }
+
+                })
+            }
+
+
+        function showRepair() {
+            var url = "{{ repairurl|safe }}"
+            var bike = document.getElementById("repair-bike-input");
+            var bikeID = parseInt(bike.value);
+            var repairsuccess = document.getElementById("repair-success");
+            var repairfailhire = document.getElementById("repair-fail");
+            var repairfail = document.getElementById("repair-fail-hire");
+            var nobike = document.getElementById("no-bike-repair")
+
+                
+            $.post(url, {"bike_id": bikeID}, function(data) {
+                var status = data.bike_status
+                var location = data.bike_location
+                if (status == 3) {
+                    repairsuccess.innerHTML = ("Bike number " + bikeID + " has been repaired")
+                    repairfail.innerHTML = ("")
+                    repairfailhire.innerHTML = ("")
+                    nobike.innerHTML = ("");
+                }
+                else if (status == 2) {
+                    repairsuccess.innerHTML = ("")
+                    repairfail.innerHTML = ("")
+                    repairfailhire.innerHTML = ("Bike number " + bikeID + " does not need to be repaired. It is on hire from " + location)
+                    nobike.innerHTML = ("");
+                }
+                else if (status == 1) {
+                    repairsuccess.innerHTML = ("")
+                    repairfail.innerHTML = ("Bike number " + bikeID + " does not need to be repaired. It it available for hire at " + location)
+                    repairfailhire.innerHTML = ("")
+                    nobike.innerHTML = ("");
+                }
+                else {
+                    repairsuccess.innerHTML = ("")
+                    repairfail.innerHTML = ("")
+                    repairfailhire.innerHTML = ("")
+                    nobike.innerHTML = ("This bike does not exist.");
+                }
+
+            })
+        }
+
+        $("#move-bike-btn").on("click", function() {
+            $("#move-bike-form").submit()
+        })
+            
+        $("#track-bike-btn").on("click", function(e) {
+            e.preventDefault()
+
+            showLocation()
+        })
+
+        $("#repair-bike-btn").on("click", function(e) {
+            $("#repair-bike-forms").submit()
+        })
+
+        $("#create-discount-btn").on("click", function() {
+            $("#create-discount-form").submit()
+        })
+
+    var picker_from = new Pikaday({
+        field: document.getElementById("id_date_from"),
+        format: 'DD-MM-YYYY',
+        onSelect: function(date) {
+            picker_to.config({
+                minDate: this.getDate()
+            })
+            
+            checkDateInputs()
+        }
+    });
+
+    var picker_to = new Pikaday({
+        field: document.getElementById("id_date_to"),
+        format: 'DD-MM-YYYY',
+        onSelect: function() {
+            picker_from.config({
+                maxDate: this.getDate()
+            })
+            checkDateInputs()
+        }
+    })
+
+    function checkDateInputs() {
+        var from = $("#id_date_from").val()
+        console.log(from)
+        var to = $("#id_date_to").val()
+        if (from.length == 0 || to.length == 0) {
+            $("#create-discount-btn").prop("disabled", true)
+        } else {
+            $("#create-discount-btn").prop("disabled", false)
+        }
+    }
+            
+    </script>
+
+    
+
+{% endblock %}

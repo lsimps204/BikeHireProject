@@ -1,0 +1,55 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    Bike Status Report
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="d-flex justify-content-between my-3 align-items-center">
+        <div>
+            <h2 class="text-success">Bike Status Report</h2>
+            <p class="lead">Reports on various bike status details from the RainyBikes application</p>
+        </div>
+        <img src="{% static 'images/report_icon.png' %}" class="big-icon mr-4" />
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-5 text-center">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">Bike Status Statistics</h5>
+                    <p class="card-text">
+                        <ul class="list-group">
+                            <li class="list-group-item">Total number of bikes:
+                                <strong class="ml-3">{{ total_bikes }}</strong>
+                            </li>
+                             <li class="list-group-item">Number of bikes available:
+                                <strong class="ml-3">{{ num_available }}</strong>
+                            </li>
+                            <li class="list-group-item">Number of bikes on hire: 
+                                <strong class="ml-3">{{ num_onhire }}</strong>
+                            </li>
+                            <li class="list-group-item">Number of bikes being repaired: 
+                                <strong class="ml-3">{{ num_repaired }}</strong>
+                            </li>
+                        </ul>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-7">
+            {{ div|safe }}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block js %}
+    {{ script|safe }}
+{% endblock %}

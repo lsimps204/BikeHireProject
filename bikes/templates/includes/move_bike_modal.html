@@ -1,0 +1,33 @@
+{% load bikes_filters %}
+<div id="move-bike-modal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Move bike</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Select a location to remove a bike from</p>
+        <form action="{% url 'bikes:move-bike' %}" id="move-bike-form" method="POST">
+            {% csrf_token %}
+
+                <!--Is the form not valid?-->
+                <div class="form-group">
+                    {{ form.location.label_tag }}
+                    {{ form.location|add_class:"form-control" }}
+                </div>
+                <div class="form-group">
+                    {{ form.new_location.label_tag }}
+                    {{ form.new_location|add_class:"form-control" }}
+                </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="move-bike-btn">Move Bike</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

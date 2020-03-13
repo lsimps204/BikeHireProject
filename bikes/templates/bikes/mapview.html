@@ -1,0 +1,123 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    View Map
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="mt-4 d-flex justify-content-between">
+                    <h3 class="text-success d-inline">Locations</h3>
+                    <div>
+                        <form class="form-inline" action="" method="get" id="postcode-input">
+                            <div class="form-group">
+                                <input class="form-control-sm" type="text" placeholder="Find nearest station..."/>
+                            </div>
+                            <button type="submit" id="submit-postcode" 
+                                class="btn btn-success btn-sm ml-1">Submit</button>
+                        </form>
+
+                    </div>
+                </div>
+                <hr/>
+
+                <!-- List locations -->
+                
+                {% for location in locations %}
+                    <div class="mb-4 card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{% url 'bikes:location_detail' location.pk %}">{{ location.station_name }}</a>
+                            </h5>
+                            <p class="card-text">{{location.num_bikes }} bikes available</p>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            <!-- Pagination -->
+            <div class="pagination mt-4">
+                <ul class="pagination">
+                    {% if locations.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ locations.previous_page_number }}">
+                                {{ locations.previous_page_number }}
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <a class="page-link" href="?page={{ locations.number }}">
+                            {{ locations.number }}
+                        </a>
+                    </li>
+
+                    {% if locations.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ locations.next_page_number }}">
+                                {{ locations.next_page_number }}
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <span class="current ml-3">
+                        Page {{ locations.number }} of {{ locations.paginator.num_pages }}.
+                    </span>
+                </ul>
+            </div>
+
+            </div>
+            <div class="col-12 col-md-6">
+                <div id="map" class="my-2 col-12"></div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'includes/notification.html' %}
+{% endblock %}
+
+{% block js %}
+<script>
+function initMap() {
+    var glasgow = {lat: 55.8642, lng: -4.2518};
+    var endpoint = "{{ locations_api|safe }}"
+    
+    var map = new google.maps.Map(
+        document.getElementById('map'), {zoom: 13, center: glasgow}
+    );
+    var infoWindow = new google.maps.InfoWindow;
+
+    /* Make request for location data */
+    $.get(endpoint, function(data) {
+        
+        for (var location of data) {
+            var position = {
+                lat: location.latitude, 
+                lng: location.longitude
+            }
+            var marker = new google.maps.Marker({position: position, map: map});
+            var infowincontent = document.createElement('div');
+              var strong = document.createElement('strong');
+              strong.textContent = location.station_name
+              infowincontent.appendChild(strong);
+              infowincontent.appendChild(document.createElement('br'));
+              var text = document.createElement('text');
+              text.textContent = location.bikes_set.length + " bikes available"
+              infowincontent.appendChild(text);
+              google.maps.event.addListener(marker, 'click', (function(marker, infowincontent, infoWindow) {
+                    return function() {
+                        infoWindow.setContent(infowincontent);
+                        infoWindow.open(map, marker);
+                    }
+              })(marker, infowincontent, infoWindow));
+        }
+    })
+}
+
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDr91yE-43L7KqAMSiS0IrIxZLcIkwGNVk&callback=initMap">
+</script>
+{% endblock %}
+

@@ -1,0 +1,94 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+
+{% block title_block %}
+    Reports
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+
+        <div class="mt-4">
+            <img src="{% static 'images/report_icon.png' %}" class="icon mr-2" />
+            <h3 class="text-success d-inline">RainyBikes reports</h3>
+        </div>
+        <hr/>
+        
+        
+        <div class="card-deck">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                    <a href="{% url 'reports:bike_locations' %}">
+                        <i class="zmdi zmdi-bike text-success"></i>
+                        Bike Location Report</a>
+                    </h5>
+                    <p class="card-text text-success">
+                        A report page containing information on the current, and historical, distribution of bikes throughout Glasgow.
+                    </p>
+                </div>
+            </div>
+        
+
+        
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{% url 'reports:user-report' %}">
+                        <i class="zmdi zmdi-account text-success"></i>
+                        User Activity Report</a>
+                    </h5>
+                    <p class="card-text text-success">
+                        A report showing user activity over a given timeframe
+                    </p>
+                </div>
+            </div>
+        
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                    <a href="{% url 'reports:financial-report' %}">
+                        <i class="zmdi zmdi-money text-success"></i>
+                        Financial Report</a>
+                    </h5>
+                    <p class="card-text text-success">
+                        A report showing financial revenue information accrued over a given timeframe.
+                    </p>
+                </div>
+            </div>
+            
+        </div>
+
+        <br/>
+
+        <div class="card-deck">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                    <a href="{% url 'reports:bike_status' %}">
+                        <i class="zmdi zmdi-info text-success"></i>
+                        Bike Status Report</a>
+                    </h5>
+                    <p class="card-text text-success">
+                        A report showing information about bike status - showing the number of bikes on hire, number available, and number currently being repaired.
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                    <a href="{% url 'reports:path_routes' %}">
+                        <i class="zmdi zmdi-map text-success"></i>
+                        User Route Report</a>
+                    </h5>
+                    <p class="card-text text-success">
+                        A report showing where users most frequently go to when hiring a bike from a given station
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+{% endblock %}

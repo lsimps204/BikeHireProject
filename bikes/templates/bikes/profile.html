@@ -1,0 +1,159 @@
+{% extends 'bikes/base.html' %}
+{% load static %}
+{% load bikes_filters %}
+{% load humanize %}
+
+{% block title_block %}
+    Profile
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="d-flex align-items mt-3">
+        <img src="{% static 'images/user-bike-icon.png' %}" class="icon mr-3"/>
+            <h2 class="d-inline font-weight-bold"
+            style="color: rgb(72, 194, 146);">{{user.username|title}}'s profile</h2>
+    </div>
+
+    <hr/>
+
+<!-- Hidden form to submit a new profile picture. Upload and subumission is bound to the picture using jQuery. -->
+<div class="profile-form">
+    <form id='profile-image-form' method="POST" 
+        action="{% url 'bikes:profile_pic_add' user.userprofile.pk %}" enctype="multipart/form-data" hidden>
+        {% csrf_token %}
+        {{ profile_form.profile_pic|add_id:"picture-upload" }}
+    </form>
+</div>
+
+        <div class="row">
+            <div class="col-12 col-sm-8">
+                <table class="table table-striped table-bordered table-hover">
+                    <tbody>
+                        <tr>
+                            <td class="font-weight-bold">
+                                <i class="zmdi zmdi-account mr-2"></i>Username</td>
+                            <td>{{user.username}}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">
+                                <i class="zmdi zmdi-info mr-2"></i>Full name</td>
+                            <td>{{user.firstname}} {{user.lastname}}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">
+                                <i class="zmdi zmdi-email mr-2"></i>Email</td>
+                            <td>{{user.email}}</td>
+                        </tr>
+                        <tr>
+                        <tr>
+                            <td class="font-weight-bold">
+                                <i class="zmdi zmdi-accounts mr-2"></i>Membership Type</td>
+                            <td>{{ user.userprofile.get_membership_type_display }}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">
+                                <i class="zmdi zmdi-money mr-2"></i>Balance</td>
+                            <td>£{{user.userprofile.balance|floatformat:2|intcomma}}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">
+                            <i class="zmdi zmdi-alert-octagon mr-2"></i>Charges</td>
+                            <td>£{{user.userprofile.charges|floatformat:2|intcomma}}</td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">
+                                <i class="zmdi zmdi-plus-1 mr-2"></i>Total journeys
+                            </td>
+                            <td>
+                                {{ num_bike_rides }}
+                                {% if user.userprofile.current_hire %}
+                                <a href="{% url 'bikes:user-hires' %}">
+                                    <button class="btn btn-sm ml-3 btn-success">View current hire</button>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold">
+                            <i class="zmdi zmdi-map mr-2"></i>Distance Travelled</td>
+                            <td>{{distance_travelled|floatformat:2|intcomma}} km</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            <button type="button" class="btn btn-primary my-3" data-toggle="modal" data-target="#add-funds-modal">
+                Add funds
+            </button>
+
+            <button type="button" class="btn btn-primary my-3" data-toggle="modal" data-target="#pay-charges-modal">
+                Pay charges
+            </button>
+
+            </div>
+            <div class="col-12 col-sm-4 user-profile">
+                {% if user.userprofile.profile_pic %}
+                    <img src="{{ user.userprofile.profile_pic.url }}" 
+                        id="user-profile-pic"
+                        class="profile-page-image rounded img-fluid"
+                        alt="Profile" title="Click to change picture." />
+                {% else %}
+                    <!-- show a default if the user hasn't uploaded a picture -->
+                    <img src="{% static 'images/default-profile-pic.png' %}" 
+                        id="user-profile-pic"
+                        class="profile-page-image rounded img-fluid"
+                        alt="Profile" title="Click to change picture." />
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% include 'includes/add_funds_modal.html' %}
+
+    {% include 'includes/pay_charges_modal.html' %}
+
+    {% include 'includes/notification.html' %}
+{% endblock %}
+
+{% block js %}
+<script>
+    
+    var start_balance = parseFloat("{{ user.userprofile.balance|safe }}")
+    
+    /* Function that changes the user profile. */
+    $(".user-profile").on("click", "#user-profile-pic", function() {
+        $("#picture-upload").click();
+    });
+    $("#picture-upload").on("change", function() {
+        $("#profile-image-form").submit();
+    });
+
+    /* update balance info text */
+    $("#add-balance-input").on("keyup", function() {
+        let input = parseFloat($(this).val()) // get the value of the input box
+        // if parseFloat is non-truthy or less than zero, restore to default
+        if (!input || input <= 0) {
+            $(this).val("")
+            $("#balance-text").text(start_balance)
+        } else {
+            let updated = start_balance + input
+            $("#balance-text").text(updated.toFixed(2))
+        }
+    });
+
+    $("#add-funds-btn").on("click", function() {
+        var toAdd = $("#add-balance-input").val()
+        if (toAdd) {
+            $("#add-funds-form").submit()
+        }
+
+    })
+
+    $("#pay-charges-btn").on("click", function() {
+        $("#pay-charges-form").submit()
+    })
+     
+</script>
+{% endblock %}

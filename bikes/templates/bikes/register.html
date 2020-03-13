@@ -1,0 +1,90 @@
+{% extends 'bikes/base.html' %}
+{% load bikes_filters %}
+{% load static %}
+
+{% block title_block %}
+	Register
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="col-10 offset-1 col-md-6 offset-md-3">
+        {% if user.is_authenticated %}
+            <h2 class="my-4 text-success">{{user.username}}, you're already logged in!</h2>
+            <a href="{% url 'bikes:index' %}">Click here</a> to return to the homepage.
+        {% else %}
+        <div class="card mt-5">
+        <div class="card-header">
+            <h3 class="mb-0">Sign Up</h3>
+        </div>
+        <form action="{% url 'bikes:register' %}" method="POST" autocomplete="off">
+            {% csrf_token %}
+            <div class="card-body m-2">
+                {% for field in form %}
+                    <div class="form-group">
+                        {{ field.label_tag}}
+                        {{ field|add_class:"form-control" }}
+                        {% if field.errors %}
+                            {% for err in field.errors %}
+                                <label class="error text-danger mt-2">{{ err }}</label>
+                            {% endfor %}
+                        {% endif %}
+                        
+                        <div class="ajax-err d-none">
+                            <i class="zmdi zmdi-alert-triangle text-danger"></i>
+                            <label class="text-danger mt-2"></label>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                <button type="submit" id="register-submit" class="btn btn-primary">Submit</button>
+                
+            </div>
+        </form>
+    </div>
+    {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+$(document).ready(function() {
+
+    // Username AJAX request
+    $("#id_username").on('keyup', function() {
+        var username = $(this).val()
+        $.get('ajax/check_username/', data={'username': username}, function(data) {
+            var element = $("#id_username").siblings(".ajax-err")
+            if (data.username_exists) {
+                $(element).removeClass('d-none')
+                $(element).children("label").text("Username already exists!")
+                $("#register-submit").prop('disabled', true)
+            } else {
+                $(element).children("label").text("")
+                $(element).addClass("d-none")
+                $("#register-submit").prop('disabled', false)
+            }
+        })
+    })
+
+    // Email AJAX request
+    $("#id_email").on('keyup', function() {
+        var email = $(this).val()
+        $.get('ajax/check_email/', data={'email': email}, function(data) {
+            var element = $("#id_email").siblings(".ajax-err")
+            if (data.email_exists) {
+                $(element).removeClass('d-none')
+                $(element).children("label").text("This email address has been taken!")
+                $("#register-submit").prop('disabled', true)
+            } else {
+                $(element).children("label").text("")
+                $(element).addClass("d-none")
+                $("#register-submit").prop('disabled', false)
+            }
+        })
+    })
+});
+</script>
+{% endblock %}

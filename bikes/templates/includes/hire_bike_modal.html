@@ -1,0 +1,25 @@
+<div id="hire-bike-modal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Hire Bike</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you wish to hire bike <span class="modal-bikeid"></span>?</p>
+        <form action="{% url 'bikes:hire-bike' %}" id="hire-bike-form" class="d-none" method="POST">
+            {% csrf_token %}
+            {% for field in hire_form  %}
+                {{ field }}
+            {% endfor %}
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="confirm-hire-btn">Confirm Hire</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>

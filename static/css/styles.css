@@ -1,0 +1,43 @@
+#map {
+    height: 500px;  /* The height is 400 pixels */
+    width: 100%;  /* The width is the width of the web page */
+   }
+
+.icon {
+    max-width:50px;
+    max-height:50px;
+}
+
+.wee-icon {
+    max-width:25px;
+    max-height:25px;
+    cursor: pointer;
+}
+
+.big-icon {
+    max-width:62px;
+    max-height:62px;  
+}
+
+#user-profile-pic {
+    max-width: 100%;
+    max-height: 100%;
+    cursor: pointer;
+}
+
+.alert {
+	position: fixed;
+	right: 25px;
+    bottom: 25px;
+    width: 300px;
+    max-height:110px;
+}
+
+.table-btn {
+    width:60px;
+}
+
+#hire-btn {
+    background: rgb(169, 219, 182);
+    color: #000000;
+}

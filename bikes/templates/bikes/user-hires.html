@@ -1,0 +1,125 @@
+{% extends 'bikes/base.html' %}
+{% load humanize %}
+{% load bikes_filters %}
+{% load static %}
+
+{% block title_block %}
+    User Hires
+{% endblock %}
+
+{% block content %}
+    
+<div class="container">
+
+    <div id="current-hire" class="my-3">
+        <h3 class="text-success mb-4">Current Hire</h3>
+
+        {% if current_hire %}
+            <div class="card col-12 col-md-6">
+                <div class="card-body">
+                <h5 class="card-title text-primary"><i class="zmdi zmdi-bike mr-2"></i>Current Hire</h5>
+                    <p>You currently have <b>Bike {{current_hire.bike.id}}</b> out on hire!</p>
+                    
+                    <hr/>
+                    <p class="mt-2"><i class="mr-2 zmdi zmdi-time-interval"></i> 
+                        Hired <b>{{ current_hire.date_hired|naturaltime }}</b> 
+                    </p>
+                    <p>From: <b>{{ current_hire.start_station.station_name }}</b></p>
+
+                    <hr/>
+                    <div class="d-flex justify-content-between">
+                        <div class="cost">
+                            Current Cost: <b>£{{ current_hire|get_cost|floatformat:2 }}</b> <br/>
+                        </div>
+                        <button class="btn btn-primary btn-sm"
+                            data-toggle="modal" data-target="#return-bike-modal">Return Bike</button>
+                </div>
+            </div>
+        {% else %}
+            You have no bike currently out on hire
+        {% endif %}
+    </div>
+
+    <hr/>
+
+    <div class="previous-hires">
+        <div class="d-flex justify-content-between my-4s">
+            <h3 class="text-success">Previous Hires</h3>
+
+            <!-- dropdown -->
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                Ordering<span class="caret"></span></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" 
+                        href="{% url 'bikes:user-hires' %}?order=-date_hired">Date (most recent)</a>
+                    <a class="dropdown-item" 
+                        href="{% url 'bikes:user-hires' %}?order=date_hired">Date (least recent)</a>
+                    <a class="dropdown-item" 
+                        href="{% url 'bikes:user-hires' %}?order=-charges">Cost (largest)</a>
+                    <a class="dropdown-item" 
+                        href="{% url 'bikes:user-hires' %}?order=charges">Cost (smallest)</a>
+                    <a class="dropdown-item" 
+                        href="{% url 'bikes:user-hires' %}?order=-duration">Duration (longest)</a>
+                    <a class="dropdown-item" 
+                        href="{% url 'bikes:user-hires' %}?order=duration">Duration (shortest)</a>
+                </div>
+            </div>
+            <!-- / dropdown -->
+        </div>
+        {% if historical_hires %}
+        
+        <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Bike ID</th>
+                <th>Start Station</th>
+                <th>End Station</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Duration</th>
+                <th>Distance</th>
+                <th>Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            {% for hire in historical_hires %}
+            <tr>
+                <td>{{ hire.bike.pk }}</td>
+                <td>{{ hire.start_station.station_name }}</td>
+                <td>{{ hire.end_station.station_name }}</td>
+                <td>{{ hire.date_hired }}</td>
+                <td>{{ hire.date_returned }}</td>
+                <td>{{ hire.get_duration|duration }}</td>
+                <td>{{ hire.distance.km|floatformat:2 }} km</td>
+                <td>£{{ hire.charges|floatformat:"2" }}</td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+        </table>
+        {% else %}
+            You have no previous hires!
+        {% endif %}
+    </div>
+
+</div>
+
+{% if current_hire %}
+    {% include 'includes/return-bike-modal.html' %}
+{% endif %}
+
+{% include 'includes/notification.html' %}
+
+{% endblock %}
+
+{% block js %}
+<script>
+
+$("#return-bike-btn").on("click", function() {
+    $("#return-bike-form").submit()
+})
+
+</script>
+{% endblock %}

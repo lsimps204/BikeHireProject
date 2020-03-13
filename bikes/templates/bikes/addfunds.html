@@ -1,0 +1,18 @@
+{% extends 'bikes/base.html' %}
+
+{% block title_block %}
+    Add funds
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <h2>Add funds here</h2>
+
+        <form action="/addfunds/">
+        Amount: <input type="number" name="Amount" value=0><br>
+        <input type="submit" value="Add funds">
+        </form>
+    </div>
+
+{% endblock %}
